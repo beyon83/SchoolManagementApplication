@@ -1,0 +1,104 @@
+html body {
+	background-color: #f2f2f2;
+}
+
+.container {
+	background-color: white;
+	box-shadow: 0px 5px 5px #888888;
+	margin: 0px auto;
+	padding: 20px;
+	margin-top: 20px;
+}
+
+.container h4 {
+	font-family: 'Slabo 27px', serif;
+}
+
+.container-header {
+	background-color: #ff00a9;
+	width: 600px;
+	height: 50px;
+	margin: 0px;
+}
+
+.form-container {
+	background-color: white;
+	box-shadow: 0px 5px 5px #888888;
+	margin: 0px auto;
+	padding: 20px;
+	margin-top: 20px;
+	width: 400px;
+}
+
+.error {
+	color: red;
+}
+
+/* .row { */
+/* 	box-shadow: 0px 5px 5px #888888; */
+/* 	margin: 0px auto; */
+/* 	font-family: 'Slabo 27px', sans-serif; */
+/* 	margin-top: 20px; */
+/* } */
+
+#logged-user {
+	position: relative;
+	color: white;
+	float: right;
+	text-decoration: none;
+	top: 0px;
+}
+
+#logged-user a:hover {
+	background-color: none;
+}
+
+/* Hover over buttons in nav bar */
+.nav > li > a:hover {
+	background-color: black !important;
+}
+
+#img-icon {
+	position: relative;
+	right: 4px;
+	bottom: 1px;
+}
+
+.nav > li > a {
+	padding-top: 15px !important;
+	padding-bottom: 15px !important;
+}
+
+.student-row {
+/* 	border: 1px solid red; */
+	height: 50px;
+	padding: 15px;
+/* 	border-bottom: 1px solid #f2f2f2; */
+}
+
+.student-header {
+	padding-left: 15px;
+	background-color: #f7f7f7;
+	height: 50px;
+}
+
+.student-header h4 {
+	margin-top: -20px;
+	padding-top: 15px;
+}
+
+.row-label {
+	width: 100px;
+}
+
+.student-row-group {
+	padding-bottom: 5px;
+	position: relative;
+	top: -10px;
+}
+
+.student-row-list {
+	float: left;
+	margin-top: 15px;
+}
+
