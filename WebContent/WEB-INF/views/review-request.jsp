@@ -1,8 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
-<%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>    
+<%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>   
 <!DOCTYPE html>
 <html>
 <head>
@@ -14,7 +13,11 @@
 <link href='https://fonts.googleapis.com/css?family=Slabo+27px' rel='stylesheet' type='text/css'>
 <link href='http://fonts.googleapis.com/css?family=Open+Sans+Condensed:300&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>Register user</title>
+
+<!-- For enabling Bootstrap's dropdown menu -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+
+<title>Subject request</title>
 </head>
 <body>
 
@@ -29,11 +32,31 @@
 	    	</div>
 	    	<div>
 	        	<ul class="nav navbar-nav">
-	        		<!-- inside li: class="active" -->
-	        		<li><a href="<c:url value="/courses" />">Courses</a></li>
-	        		<li><a href="<c:url value="/school-members" />">School members</a></li>
+	        		<li><a href="<c:url value="/courses" />">Subjects</a></li>
 	        		<sec:authorize access="hasAuthority('Admin')">
-	        			<li><a href="<c:url value="/register" />">Register user</a></li>
+						<li class="dropdown"><a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Register <span class="caret"></span></a>
+	          				<ul class="dropdown-menu" role="menu">
+	            				<li><a href="<c:url value="/register-admin" />">Admin</a></li>
+	            				<li><a href="<c:url value="/register-teacher" />">Teacher</a></li>
+	            				<li><a href="<c:url value="/register-student" />">Student</a></li>
+	            				<li><a href="<c:url value="/add-course" />">New subject</a></li>
+	          				</ul>
+	        			</li>
+	        			<li><a href="<c:url value="/admin-get-all-students" />">Students</a></li>
+	        			<li>
+	        				<a href="<c:url value="/review-requests" />">Requests</a>
+	        			</li>
+	        			<li>
+	        				<a href="<c:url value="/review-requests" />">
+	        					Requests
+	        					<c:if test="${not empty requests}">
+<%-- 	        						<img src="<c:url value='/resources/images/request-count-icon.png'  />" /> --%>
+	        						<small><span style="color: orange; font-weight: bold; position: relative;">
+	        							<c:out value="${requests.size()}" />
+	        						</span></small>
+	        					</c:if>
+	        				</a>
+	        			</li>
 	        		</sec:authorize>
 	        		<c:if test="${loggedUser == null}">
 	        			<li><a href="<c:url value="/login" />">Log in</a></li>
@@ -65,39 +88,44 @@
 	    	</div>
 		</div>
 	</nav> <!-- End of navigation bar -->
-
-	<div class="form-container">
-		<h4>Register</h4>
-		<form:form method="POST" action="${pageContext.request.contextPath}/registered" modelAttribute="user" >
-			<div class="form-group">
-				<form:input type="text" path="username" name="username" class="form-control" placeholder="Username" />
-				<form:errors path="username" cssClass="error"></form:errors>
-			</div>
-			<div class="form-group">
-				<form:input type="text" path="password" name="password" placeholder="Password" class="form-control" />
-				<form:errors path="password" cssClass="error"></form:errors>
-			</div>
-<!-- 			<div class="form-group"> -->
-<!-- 				<input type="text" name="confirmPassword" placeholder="Confirm password" class="form-control" /> -->
-<%-- 				<span class="passwordCheck" style="color: red; position: relative; top: 8px;"><c:out value="${passwordError}" /></span> --%>
-<!-- 			</div> -->
-			<div class="form-group">
-				<form:input type="text" path="firstName" name="firstName" class="form-control" placeholder="First name" />
-				<form:errors path="firstName" cssClass="error"></form:errors>
-			</div>
-			<div class="form-group">
-				<form:input type="text" path="lastName" name="lastName" class="form-control" placeholder="Last name" />
-				<form:errors path="lastName" cssClass="error"></form:errors>
-			</div>
-			<label>User authority:</label>
-			<form:select path="userRole" multiple="false">
-    			<form:options items="${user.userRole}" />
-			</form:select>
-			<div class="form-group">
-				<input type="submit" value="Submit" class="btn btn-info btn-block" />
-			</div>
-		</form:form>
-	</div>
+	
+	<div class="container">
+		<c:choose>
+			<c:when test="${loggedUser != null}">
+				<h4>Requests:</h4>
+				<sec:authorize access="hasAuthority('Admin')">
+					<c:choose>
+						<c:when test="${not empty requests}">
+							<c:forEach items="${requests}" var="request">
+								<ul>
+									<li>	
+										<p> 
+											Student: <a href="#"><c:out value="${request.student.firstName} ${request.student.lastName}, " /></a>
+											has sent request for subject: 
+											<span style="font-weight: bold;">
+												<c:out value="${request.subject.subjectTitle}" />
+											</span>
+										</p>
+										<form action="<c:url value='/request-replied/${request.student.username}/${request.subject.subjectId}/${request.requestId}' />">
+											<input style="height: 30px;" type="submit" value="Accept" class="btn btn-info" name="request" />
+											<input style="height: 30px;" type="submit" value="Decline" class="btn btn-warning" name="request" />
+										</form>
+									</li>
+								</ul>
+							</c:forEach>
+						</c:when>
+						<c:otherwise>
+							There is no new requests at the moment.
+						</c:otherwise>
+					</c:choose>
+				</sec:authorize>
+			</c:when>
+			<c:otherwise>
+				<h4>Welcome Guest!</h4>
+				<p>You can <a href="<c:url value='/login' />">login</a> here if you have an account.</p>
+			</c:otherwise>
+		</c:choose>
+    </div>
 
 </body>
 </html>

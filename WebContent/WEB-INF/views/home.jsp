@@ -43,6 +43,17 @@
 	          				</ul>
 	        			</li>
 	        			<li><a href="<c:url value="/admin-get-all-students" />">Students</a></li>
+	        			<li>
+	        				<a href="<c:url value="/review-requests" />">
+	        					Requests
+	        					<c:if test="${not empty requests}">
+<%-- 	        						<img src="<c:url value='/resources/images/request-count-icon.png'  />" /> --%>
+	        						<small><span style="color: orange; font-weight: bold; position: relative;">
+	        							<c:out value="${requests.size()}" />
+	        						</span></small>
+	        					</c:if>
+	        				</a>
+	        			</li>
 	        		</sec:authorize>
 	        		<sec:authorize access="hasAuthority('Teacher')">
 	        			<li><a href="<c:url value="/get-students" />">Students</a></li>
@@ -85,6 +96,9 @@
 		<c:choose>
 			<c:when test="${loggedUser != null}">
 				<h4>Welcome <a href="<c:url value='/student-account?id=${loggedUser.id}' />"><c:out value="${loggedUser.firstName} ${loggedUser.lastName}" /></a></h4>
+				<sec:authorize access="hasAuthority('Admin')">
+					&bull;&nbsp; Administrator <br />
+				</sec:authorize>
 			</c:when>
 			<c:otherwise>
 				<h4>Welcome Guest!</h4>

@@ -44,9 +44,17 @@
 	          				</ul>
 	        			</li>
 	        			<li><a href="<c:url value="/admin-get-all-students" />">Students</a></li>
-	        		</sec:authorize>
-	        		<sec:authorize access="hasAuthority('Teacher')">
-	        			<li><a href="<c:url value="/get-students" />">Students</a></li>
+	        			<li>
+	        				<a href="<c:url value="/review-requests" />">
+	        					Requests
+	        					<c:if test="${not empty requests}">
+<%-- 	        						<img src="<c:url value='/resources/images/request-count-icon.png'  />" /> --%>
+	        						<small><span style="color: orange; font-weight: bold; position: relative;">
+	        							<c:out value="${requests.size()}" />
+	        						</span></small>
+	        					</c:if>
+	        				</a>
+	        			</li>
 	        		</sec:authorize>
 	        		<c:if test="${loggedUser == null}">
 	        			<li><a href="<c:url value="/login" />">Log in</a></li>
@@ -84,22 +92,16 @@
 			<thead>
 				<tr>
 					<th>#ID</th>
-					<th>First Name</th>
-					<th>Last Name</th>
+					<th>Student</th>
 					<th>Username</th>
-					<th>Absences</th>
-					<th>GPA</th>
 				</tr>
 			</thead>
 			<tbody>
 			<c:forEach items="${students}" var="student">
 				<tr>
 					<td><c:out value="${student.id}" /></td>
-					<td><a href="<c:url value="/admin-student?id=${student.id}" />"><c:out value="${student.firstName}" /></a></td>
-					<td><c:out value="${student.lastName}" /></td>
+					<td><a href="<c:url value="/admin-student?id=${student.id}" />"><c:out value="${student.firstName} ${student.lastName}" /></a></td>
 					<td><c:out value="${student.username}" /></td>
-					<td><c:out value="Absences" /></td>
-					<td><c:out value="GPA Average" /></td>
 				</tr>
 			</c:forEach>	
 			</tbody>

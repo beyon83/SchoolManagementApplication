@@ -1,8 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
-<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+<%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>   
 <!DOCTYPE html>
 <html>
 <head>
@@ -14,7 +13,11 @@
 <link href='https://fonts.googleapis.com/css?family=Slabo+27px' rel='stylesheet' type='text/css'>
 <link href='http://fonts.googleapis.com/css?family=Open+Sans+Condensed:300&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>Students</title>
+
+<!-- For enabling Bootstrap's dropdown menu -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+
+<title>Home page</title>
 </head>
 <body>
 
@@ -29,10 +32,23 @@
 	    	</div>
 	    	<div>
 	        	<ul class="nav navbar-nav">
-	        		<!-- inside li: class="active" -->
 	        		<li><a href="<c:url value="/courses" />">Subjects</a></li>
+	        		<sec:authorize access="hasAuthority('Admin')">
+						<li class="dropdown"><a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Register <span class="caret"></span></a>
+	          				<ul class="dropdown-menu" role="menu">
+	            				<li><a href="<c:url value="/register-admin" />">Admin</a></li>
+	            				<li><a href="<c:url value="/register-teacher" />">Teacher</a></li>
+	            				<li><a href="<c:url value="/register-student" />">Student</a></li>
+	            				<li><a href="<c:url value="/add-course" />">New subject</a></li>
+	          				</ul>
+	        			</li>
+	        			<li><a href="<c:url value="/admin-get-all-students" />">Students</a></li>
+	        		</sec:authorize>
 	        		<sec:authorize access="hasAuthority('Teacher')">
 	        			<li><a href="<c:url value="/get-students" />">Students</a></li>
+	        		</sec:authorize>
+	        		<sec:authorize access="hasAuthority('Student')">
+	        			<li><a href="<c:url value="/student-account?id=${loggedUser.id}" />">Account details</a></li>
 	        		</sec:authorize>
 	        		<c:if test="${loggedUser == null}">
 	        			<li><a href="<c:url value="/login" />">Log in</a></li>
@@ -40,21 +56,6 @@
 	        		<c:if test="${loggedUser != null}">
 	        			<li><a href="<c:url value="/logout" />">Log Out</a></li>
 	        		</c:if>
-<!-- 	        		<li style="width: 100px;"> -->
-<!-- 						Bootstrap Search form -->
-<!-- 						<form action="Search" method="get"> -->
-<!-- 							<div class="row-search" style="margin-left: 300px; margin-top: 7px;"> -->
-<!-- 						    	<div class="col-lg-6"> -->
-<!-- 						        	<div class="input-group" style="width: 300px;"> -->
-<!-- 						      			<input style="background-color: #444444;" type="text" name="query" class="form-control" placeholder="Search for..."> -->
-<!-- 						      			<span class="input-group-btn"> -->
-<%-- 						        			<a href="<c:url value="/Search?query=${query}" />"><button name="query" class="btn btn-default" type="button"><img src="images/search-icon.png" /></button></a> --%>
-<!-- 						      			</span> -->
-<!-- 						    		</div>/input-group -->
-<!-- 						   		</div>/.col-lg-6 -->
-<!-- 						    </div>/.row -->
-<!-- 					    </form> -->
-<!-- 				    </li> -->
 	      		</ul>
 	      		<ul class="nav" style="float: right;">
 					<c:if test="${loggedUser != null}">
@@ -66,39 +67,12 @@
 	</nav> <!-- End of navigation bar -->
 	
 	<div class="container">
-		<table class="table table-striped">
-			<thead>
-				<tr>
-					<th>#ID</th>
-					<th>Student</th>
-					<th>Username</th>
-<!-- 					<th>Absences</th> -->
-<!-- 					<th>GPA</th> -->
-
-       				<th>Teacher</th>
-<!--        				<th>GPA</th> -->
-       				
-					<th>Subject</th>
-				</tr>
-			</thead>
-			<tbody>
-				<c:forEach items="${students}" var="student" begin="0" end="1">
-					<c:forEach items="${subjects}" var="subject">
-						<c:forEach items="${student.subjects}" var="studentSubject" >
-							<tr>
-								<c:if test="${subject.subjectTitle eq studentSubject.subjectTitle}">
-									<td><c:out value="${student.id}" /></td>
-									<td><a href="<c:url value="/student?student=${student.username}&subjectId=${studentSubject.subjectId}" />"><c:out value="${student.firstName} ${student.lastName}" /></a></td>
-									<td><c:out value="${student.username}" /></td>
-									<td><c:out value="${teacher.firstName} ${teacher.lastName}" /></td>
-									<td><c:out value="${studentSubject.subjectTitle}" /></td>
-								</c:if>
-							</tr>
-						</c:forEach>
-					</c:forEach>
-				</c:forEach>
-			</tbody>
-		</table>
+		<h5>
+			You've sent an request for the subject: 
+			<span style="font-weight: bold; color: green"><c:out value="${requestedSubject.subjectTitle}" /></span>!
+<%-- 			<img src="<c:url value='/resources/images/check-icon.png' />" /> --%>
+		</h5>
+		<h5>Waiting for admin to approve.</h5>
     </div>
 
 </body>

@@ -45,9 +45,18 @@
 	          				</ul>
 	        			</li>
 	        			<li><a href="<c:url value="/admin-get-all-students" />">Students</a></li>
-	        		</sec:authorize>
-	        		<sec:authorize access="hasAuthority('Teacher')">
-	        			<li><a href="<c:url value="/get-students" />">Students</a></li>
+	        			<li>
+	        				<a href="<c:url value="/review-requests" />">
+	        					Requests
+	        					<c:if test="${not empty requests}">
+<%-- 	        						<img src="<c:url value='/resources/images/request-count-icon.png'  />" /> --%>
+	        						<small><span style="color: orange; font-weight: bold; position: relative;">
+	        							<c:out value="${requests.size()}" />
+	        						</span></small>
+	        					</c:if>
+	        				</a>
+	        				
+	        			</li>
 	        		</sec:authorize>
 	        		<c:if test="${loggedUser == null}">
 	        			<li><a href="<c:url value="/login" />">Log in</a></li>
@@ -108,9 +117,9 @@
 <%-- 				<form:options items="${teacher.subjectsOptions}" title="Hold CTRL key to select multiple items" /> --%>
 <%-- 			</form:select> --%>
 			<label>Assign one or more subjects to this teacher: </label>
-			<select multiple name="getSelectedSubjects">
+			<select multiple name="getSelectedSubjects" style="min-width: 150px;">
 				<c:forEach items="${subjects}" var="subject">	
-					<option>${subject.subjectTitle}</option>
+					<option>${subject}</option>
 				</c:forEach>
 			</select>
 			<p></p>

@@ -3,6 +3,7 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %> 
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <!DOCTYPE html>
 <html>
 <head>
@@ -72,29 +73,56 @@
     	<div class="student-header" style="margin-top: 10px;">
 			<h4>STUDENT: <span style="color: #2277aa;"><c:out value="${student.firstName} ${student.lastName} (${student.username})" /></span></h4>
 		</div>
-    	<table class="table table-stripped">
+    	<table class="table table-bordered" id="grades-cell">
     		<thead>
-    			<tr>
+    			<tr id="grades-cell-row-header">
     				<th>Subjects:</th>
+    				<th>Absences:</th>
     				<th>Grades:</th>
-    				<th>Absences</th>
-    				<th>Grade point average</th>
+    				<th title="Grade point average">GPA:</th>
     			</tr>
     		</thead>
     		<tbody>
-    			<c:forEach items="${student.subjects}" var="subject">
-	    			<tr>
-	    				<td><c:out value="${subject.subjectTitle}" /></td>
-	    				<td><c:out value="0" /></td>
-	    				<td><c:out value="${numbOfAbsences}0" /></td>
-	    				<td><c:out value="0" /></td>
-	    			</tr>
+    			<c:forEach items="${student.subjects}" var="subject"> 
+		    			<tr>
+		    				<td><c:out value="${subject.subjectTitle}" /></td>
+		    				<td><c:out value="N/A" /></td>
+		    				<td>
+		    					<c:set value="${0}" var="sum" />
+		    					<c:set value="${0}" var="counter" />
+		    					<c:forEach items="${student.grades}" var="grade">
+									<c:if test="${subject.subjectTitle eq grade.subject.subjectTitle}">
+										<c:if test="${grade.grade == 5 or grade.grade == 4}">
+											<span style="color: green;"><c:out value="${grade.grade}" /></span> &nbsp;
+										</c:if>
+										<c:if test="${grade.grade == 2 or grade.grade == 3}">
+											<span style="color: orange;"><c:out value="${grade.grade}" /></span> &nbsp;
+										</c:if>
+										<c:if test="${grade.grade == 1}">
+											<span style="color: red;"><c:out value="${grade.grade}" /></span> &nbsp;
+										</c:if>
+										<c:set var="sum" value="${sum = sum + grade.grade}" />
+										<c:set var="counter" value="${counter = counter + 1}" />
+									</c:if>
+		    					</c:forEach>
+	    					</td>
+		    				<td><fmt:formatNumber type="number" pattern="#.##" value="${sum / counter}" /></td>
+		    			</tr>
     			</c:forEach>
+    			<tr id="grades-cell-row-footer">
+    				<td style="font-weight: bold;">Total:</td>
+    				<td style="font-weight: bold;"><c:out value="${numbOfAbsences}" /></td>
+    				<td style="font-weight: bold;">
+<%--     					<c:forEach items="${totalGrades}" var="grade"> --%>
+<%--     						<c:out value="${grade}" /> --%>
+<%--     					</c:forEach> --%>
+						<c:out value="N/A" />
+    				</td>	
+    				<td style="font-weight: bold;"><c:out value="${totalAverage}" /></td>
+    			</tr>
     		</tbody>
     	</table>
     </div>
     
-<%--     <c:out value="${student.firstName} ${student.lastName}" /> --%>
-
 </body>
 </html>

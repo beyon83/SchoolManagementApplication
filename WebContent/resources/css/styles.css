@@ -78,7 +78,7 @@ html body {
 
 .student-header {
 	padding-left: 15px;
-	background-color: #f7f7f7;
+/* 	background-color: #f7f7f7; */
 	height: 50px;
 }
 
@@ -100,5 +100,26 @@ html body {
 .student-row-list {
 	float: left;
 	margin-top: 15px;
+}
+
+#grades-cell-row-header {
+	background-color: #f9f9f9;
+}
+
+#grades-cell tr td:nth-child(3) {
+    width:50%;
+}
+
+#grades-cell tr td:nth-child(4) {
+    width:5%;
+}
+
+#grades-cell > tbody > tr:nth-child(4) > td, 
+#grades-cell > tbody > tr:nth-child(4) > th {
+    background-color: #f9f9f9;
+}
+
+#grades-cell-row-footer {
+	background-color: #f9f9f9;
 }
 

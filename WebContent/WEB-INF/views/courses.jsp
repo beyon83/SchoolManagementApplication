@@ -44,6 +44,18 @@
 	          				</ul>
 	        			</li>
 	        			<li><a href="<c:url value="/admin-get-all-students" />">Students</a></li>
+	        			<li>
+	        				<a href="<c:url value="/review-requests" />">
+	        					Requests
+	        					<c:if test="${not empty requests}">
+<%-- 	        						<img src="<c:url value='/resources/images/request-count-icon.png'  />" /> --%>
+	        						<small><span style="color: orange; font-weight: bold; position: relative;">
+	        							<c:out value="${requests.size()}" />
+	        						</span></small>
+	        					</c:if>
+	        				</a>
+	        				
+	        			</li>
 	        		</sec:authorize>
 	        		<sec:authorize access="hasAuthority('Teacher')">
 	        			<li><a href="<c:url value="/get-students" />">Students</a></li>
@@ -51,10 +63,10 @@
 	        		<sec:authorize access="hasAuthority('Student')">
 	        			<li><a href="<c:url value="/student-account?id=${loggedUser.id}" />">Account details</a></li>
 	        		</sec:authorize>
-	        		<c:if test="${loggedUser == null}">
+	        		<c:if test="${loggedUser eq null}">
 	        			<li><a href="<c:url value="/login" />">Log in</a></li>
 	        		</c:if>
-	        		<c:if test="${loggedUser != null}">
+	        		<c:if test="${loggedUser ne null}">
 	        			<li><a href="<c:url value="/logout" />">Log Out</a></li>
 	        		</c:if>
 <!-- 	        		<li style="width: 100px;"> -->
@@ -88,15 +100,38 @@
 				<tr>
 					<th>ID</th>
 					<th>Subject title</th>
+					<sec:authorize access="hasAuthority('Student')">
+						<th>Attending</th>
+					</sec:authorize>
 					<th>Teacher</th>
 				</tr>
 			</thead>
-				<c:forEach items="${subjects}" var="subject">
+			<tbody>
+				<c:forEach items="${subjects}" var="subject"> <!-- Begin of outer loop -->
 					<tr>
 						<td><c:out value="${subject.subjectId}" /></td>
 						<td><c:out value="${subject.subjectTitle}" /></td>
+						<sec:authorize access="hasAuthority('Student')">
+							<td>
+							
+								<!-- Necessary to create temp variable, and put loggedUser inside it, to be able to compare these
+									 two after second loop is over. This is needed because subjects has other students as well -->
+								<c:set value="" var="studentNameTemp" />
+								
+								<c:forEach items="${subject.students}" var="student"> <!-- Begin of inner loop -->
+									<c:if test="${student.username eq loggedStudent}">
+										<img style="margin-left: 25px;" src="<c:url value='/resources/images/check-icon.png' />" />
+										<c:set value="${student.username}" var="studentNameTemp" />
+									</c:if>
+								</c:forEach> <!-- End of inner loop -->
+								<c:if test="${studentNameTemp ne loggedStudent}">
+									<small style="color: grey;"><em>(<c:out value="Not attending" />)</em></small>
+									<small><a style="text-decoration: underline;" href="<c:url value='/subject-request?id=${subject.subjectId}' />">Apply</a></small>
+								</c:if>
+							</td>
+						</sec:authorize>
 						<c:choose>
-							<c:when test="${subject.teacher.firstName == null}">
+							<c:when test="${subject.teacher.firstName eq null}">
 								<td style="color: grey;">
 									<em><small><c:out value="Not assigned" /></small></em>
 									<sec:authorize access="hasAuthority('Admin')">
@@ -104,13 +139,12 @@
 									</sec:authorize>
 								</td>
 							</c:when>
-						<c:otherwise>
-							<td><c:out value="${subject.teacher.firstName} ${subject.teacher.lastName}" /></td>
-						</c:otherwise>
+							<c:otherwise>
+								<td><c:out value="${subject.teacher.firstName} ${subject.teacher.lastName}" /></td>
+							</c:otherwise>
 						</c:choose>
 					</tr>
-				</c:forEach>
-			<tbody>
+				</c:forEach> <!-- End of outer loop -->
 			</tbody>
 		</table>
     </div>

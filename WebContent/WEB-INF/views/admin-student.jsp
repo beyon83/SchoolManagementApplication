@@ -45,9 +45,17 @@
 	          				</ul>
 	        			</li>
 	        			<li><a href="<c:url value="/admin-get-all-students" />">Students</a></li>
-	        		</sec:authorize>
-	        		<sec:authorize access="hasAuthority('Teacher')">
-	        			<li><a href="<c:url value="/get-students" />">Students</a></li>
+	        			<li>
+	        				<a href="<c:url value="/review-requests" />">
+	        					Requests
+	        					<c:if test="${not empty requests}">
+<%-- 	        						<img src="<c:url value='/resources/images/request-count-icon.png'  />" /> --%>
+	        						<small><span style="color: orange; font-weight: bold; position: relative;">
+	        							<c:out value="${requests.size()}" />
+	        						</span></small>
+	        					</c:if>
+	        				</a>
+	        			</li>
 	        		</sec:authorize>
 	        		<c:if test="${loggedUser == null}">
 	        			<li><a href="<c:url value="/login" />">Log in</a></li>
@@ -104,9 +112,9 @@
 	  		<div style="border-bottom: 1px solid #f2f2f2; padding: ;"></div>
 	  		<form action="<c:url value="/class-assigned/${student.id}" />">
 	  			<label style="margin-top: 20px;">Assign new class or several classes for &nbsp;</label><a href="#"><mark style="background: #f2f2f2 !important;"><c:out value="${student.firstName}" /></mark></a>
-	  			<select name="assignedClasses" multiple>
+	  			<select name="assignedClasses" multiple style="min-width: 200px;">
 	  				<c:forEach items="${subjects}" var="subject">
-	  					<option value="${subject.subjectTitle}"><c:out value="${subject.subjectTitle}" /></option>
+	  					<option value="${subject}"><c:out value="${subject}" /></option>
 	  				</c:forEach>
 	  			</select>
 	  			<p></p>

@@ -18,7 +18,7 @@
 <!-- For enabling Bootstrap's dropdown menu -->
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
 
-<title>Register user</title>
+<title>Register administrator</title>
 </head>
 <body>
 
@@ -45,6 +45,18 @@
 	          				</ul>
 	        			</li>
 	        			<li><a href="<c:url value="/admin-get-all-students" />">Students</a></li>
+	        			<li>
+	        				<a href="<c:url value="/review-requests" />">
+	        					Requests
+	        					<c:if test="${not empty requests}">
+<%-- 	        						<img src="<c:url value='/resources/images/request-count-icon.png'  />" /> --%>
+	        						<small><span style="color: orange; font-weight: bold; position: relative;">
+	        							<c:out value="${requests.size()}" />
+	        						</span></small>
+	        					</c:if>
+	        				</a>
+	        				
+	        			</li>
 	        		</sec:authorize>
 	        		<sec:authorize access="hasAuthority('Teacher')">
 	        			<li><a href="<c:url value="/get-students" />">Students</a></li>

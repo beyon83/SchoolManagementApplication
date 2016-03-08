@@ -89,7 +89,7 @@
   			</div>
   			<div class="student-row">
   				<label class="row-label">GPA:</label>
-  				<c:out value="${student.gpa}" />
+  				<c:out value="${totalAverage}" />
   			</div>
   			<div class="student-row">
   				<label class="row-label">Subject:</label>
