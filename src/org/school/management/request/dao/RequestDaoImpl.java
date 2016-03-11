@@ -18,9 +18,6 @@ public class RequestDaoImpl extends GenericDaoImpl<Request, Long> implements Req
 	public Set<Request> getAllRequests() {
 		java.util.List<Request> allRequests = (List<Request>) getAllEntities();
 		Set<Request> requests = new java.util.HashSet<>();
-//		for(int i = 0; i < allRequests.size(); i++) {
-//			requests.addAll(allRequests);
-//		}
 		for(Request request : allRequests) {
 			requests.add(request);
 		}

@@ -2,7 +2,6 @@ package org.school.management.controllers;
 
 import java.security.Principal;
 import java.util.List;
-import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -60,7 +59,7 @@ public class HomeController {
 
 	/** index page, home page */
 	@RequestMapping({"/", "/home"})
-	public String home(Authentication authentication, Principal principal, HttpSession session, Model model) {
+	public String home(Authentication authentication, Principal principal, HttpSession session) {
 		
 		if(principal != null) {
 			String loggedUser = principal.getName();
@@ -72,7 +71,9 @@ public class HomeController {
 			String authority = authentication.getAuthorities().toString();
 			if(authority.equals("[Admin]")) {
 				java.util.Set<Request> requests = requestDao.getAllRequests();
-				model.addAttribute("requests", requests);
+				if(requests != null) {
+					session.setAttribute("requests", requests);
+				}
 			}
 		}
 		
@@ -127,7 +128,7 @@ public class HomeController {
 	
 	/** Teacher got registered */
 	@RequestMapping("/teacher-registered")
-	public String teacherRegistered(User user, Teacher teacher, @RequestParam("getSelectedSubjects") String[] selectedSubjects) {
+	public String teacherRegistered(User user, Teacher teacher, @RequestParam(value="getSelectedSubjects", required=false) String[] selectedSubjects) {
 		
 		user.setAuthority("Teacher");
 		userDao.saveEntity(user);
@@ -136,11 +137,13 @@ public class HomeController {
 		
 		Subject subject = new Subject();
 		
-		for(int i = 0; i < selectedSubjects.length; i++) {
-			/** Dynamically add one or more subjects for current teacher */
-			subject = subjectDao.getSubjectByTitle(selectedSubjects[i]);
-			teacher.getSubjects().add(subject);
-			subject.setTeacher(teacher);
+		if(selectedSubjects != null) {
+			for(int i = 0; i < selectedSubjects.length; i++) {
+				/** Dynamically add one or more subjects for current teacher */
+				subject = subjectDao.getSubjectByTitle(selectedSubjects[i]);
+				teacher.getSubjects().add(subject);
+				subject.setTeacher(teacher);
+			}
 		}
 		
 		userDao.saveEntity(teacher);
@@ -162,7 +165,7 @@ public class HomeController {
 	
 	/** Student got registered */
 	@RequestMapping("/student-registered")
-	public String studentRegistered(User user, Student student, @RequestParam("getSelectedSubjects") String[] selectedSubjects) {
+	public String studentRegistered(User user, Student student, @RequestParam(value="getSelectedSubjects", required=false) String[] selectedSubjects) {
 		
 		user.setAuthority("Student");
 		userDao.saveEntity(user);
@@ -172,22 +175,24 @@ public class HomeController {
 	    Subject subject = new Subject();
 	    Teacher teacher = new Teacher();
 	    
-		for(int i = 0; i < selectedSubjects.length; i++) {
-			/** Dynamically add one or more subjects for the current student */
-			subject = subjectDao.getSubjectByTitle(selectedSubjects[i]);
-			student.getSubjects().add(subject);
-//			teacher = teacherDao.getTeacherByUsername(subject.getTeacher().getUsername());
-//			teacher.getSubjects().add(subject);
-			
-			teacher = subject.getTeacher();
-			
-			subject.setTeacher(teacher);
-			teacher.getStudents().add(student);
-			student.getTeachers().add(teacher);
-		}
+	    if(selectedSubjects != null) {
+			for(int i = 0; i < selectedSubjects.length; i++) {
+				/** Dynamically add one or more subjects for the current student */
+				subject = subjectDao.getSubjectByTitle(selectedSubjects[i]);
+				student.getSubjects().add(subject);
+//				teacher = teacherDao.getTeacherByUsername(subject.getTeacher().getUsername());
+//				teacher.getSubjects().add(subject);
+				
+				teacher = subject.getTeacher();
+				
+				subject.setTeacher(teacher);
+				teacher.getStudents().add(student);
+				student.getTeachers().add(teacher);
+			}
+			userDao.updateEntity(teacher);
+	    }
 		
  		userDao.saveEntity(student);
-		userDao.updateEntity(teacher);
 		return "redirect:/";
 	}
 	
@@ -433,21 +438,12 @@ public class HomeController {
 	}
 	
 	@RequestMapping("/review-requests")
-	public String getRequest(Authentication authentication, Model model) {
-		
-		if(authentication != null) {
-			String authority = authentication.getAuthorities().toString();
-			if(authority.equals("[Admin]")) {
-				Set<Request> requests = requestDao.getAllRequests();
-				model.addAttribute("requests", requests);
-			}
-		}
-		
+	public String getRequest() {
 		return "review-request";
 	}
 	
 	@RequestMapping("/request-replied/{student}/{subjectId}/{requestId}")
-	public String requestReplied(@RequestParam("request") String requestReply, @PathVariable("student") String studentName, @PathVariable("subjectId") long subjectId, @PathVariable("requestId") long requestId) {
+	public String requestReplied(@RequestParam("request") String requestReply, @PathVariable("student") String studentName, @PathVariable("subjectId") long subjectId, @PathVariable("requestId") long requestId, HttpSession session) {
 		
 		if(requestReply.equals("Accept")) {
 			Student student = studentDao.getStudentByName(studentName);
@@ -466,6 +462,12 @@ public class HomeController {
 		
 		Request request = requestDao.getEntityById(requestId);
 		requestDao.deleteEntity(request);
+		
+		if(requestDao.getAllRequests().size() > 0) {
+			session.setAttribute("requests", requestDao.getAllRequests());
+		} else {
+			session.setAttribute("requests", "");
+		}
 		
 		return "redirect:/review-requests";
 	}

@@ -90,43 +90,43 @@
 	</nav> <!-- End of navigation bar -->
 
 	<div class="form-container">
-		<h4>Register new teacher</h4>
-		<form:form method="POST" action="${pageContext.request.contextPath}/teacher-registered" modelAttribute="teacher" >
-			<div class="form-group">
-				<form:input type="text" path="username" name="username" class="form-control" placeholder="Username" />
-				<form:errors path="username" cssClass="error"></form:errors>
-			</div>
-			<div class="form-group">
-				<form:input type="text" path="password" name="password" placeholder="Password" class="form-control" />
-				<form:errors path="password" cssClass="error"></form:errors>
-			</div>
-<!-- 			<div class="form-group"> -->
-<!-- 				<input type="text" name="confirmPassword" placeholder="Confirm password" class="form-control" /> -->
-<%-- 				<span class="passwordCheck" style="color: red; position: relative; top: 8px;"><c:out value="${passwordError}" /></span> --%>
-<!-- 			</div> -->
-			<div class="form-group">
-				<form:input type="text" path="firstName" name="firstName" class="form-control" placeholder="First name" />
-				<form:errors path="firstName" cssClass="error"></form:errors>
-			</div>
-			<div class="form-group">
-				<form:input type="text" path="lastName" name="lastName" class="form-control" placeholder="Last name" />
-				<form:errors path="lastName" cssClass="error"></form:errors>
-			</div>
-<!-- 			<label>Assign one or more subjects for this teacher: </label> -->
-<%-- 			<form:select path="selectedSubjects" multiple="true" required="true"> --%>
-<%-- 				<form:options items="${teacher.subjectsOptions}" title="Hold CTRL key to select multiple items" /> --%>
-<%-- 			</form:select> --%>
-			<label>Assign one or more subjects to this teacher: </label>
-			<select multiple name="getSelectedSubjects" style="min-width: 150px;">
-				<c:forEach items="${subjects}" var="subject">	
-					<option>${subject}</option>
-				</c:forEach>
-			</select>
-			<p></p>
-			<div class="form-group">
-				<input type="submit" value="Submit" class="btn btn-info btn-block" />
-			</div>
-		</form:form>
+		<c:choose>
+			<c:when test="${subjects != null}">
+				<h4>Register new teacher</h4>
+				<form:form method="POST" action="${pageContext.request.contextPath}/teacher-registered" modelAttribute="teacher" >
+					<div class="form-group">
+						<form:input type="text" path="username" name="username" class="form-control" placeholder="Username" />
+						<form:errors path="username" cssClass="error"></form:errors>
+					</div>
+					<div class="form-group">
+						<form:input type="text" path="password" name="password" placeholder="Password" class="form-control" />
+						<form:errors path="password" cssClass="error"></form:errors>
+					</div>
+					<div class="form-group">
+						<form:input type="text" path="firstName" name="firstName" class="form-control" placeholder="First name" />
+						<form:errors path="firstName" cssClass="error"></form:errors>
+					</div>
+					<div class="form-group">
+						<form:input type="text" path="lastName" name="lastName" class="form-control" placeholder="Last name" />
+						<form:errors path="lastName" cssClass="error"></form:errors>
+					</div>
+					<label>Assign one or more subjects to this teacher: </label>
+					<select multiple name="getSelectedSubjects" style="min-width: 150px;" required>
+						<c:forEach items="${subjects}" var="subject">	
+							<option>${subject}</option>
+						</c:forEach>
+					</select>
+					<p></p>
+					<div class="form-group">
+						<input type="submit" value="Submit" class="btn btn-info btn-block" />
+					</div>
+				</form:form>
+			</c:when>
+			<c:otherwise>
+				<h4>No subjects available at the moment.</h4> 
+				<p>Please go and <a href="<c:url value='/add-course' />">add new subject</a> first.</p>
+			</c:otherwise>
+		</c:choose>
 	</div>
 
 </body>

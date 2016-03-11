@@ -44,9 +44,6 @@
 	        			</li>
 	        			<li><a href="<c:url value="/admin-get-all-students" />">Students</a></li>
 	        			<li>
-	        				<a href="<c:url value="/review-requests" />">Requests</a>
-	        			</li>
-	        			<li>
 	        				<a href="<c:url value="/review-requests" />">
 	        					Requests
 	        					<c:if test="${not empty requests}">
