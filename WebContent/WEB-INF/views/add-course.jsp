@@ -92,7 +92,7 @@
 		<h4>New Subject</h4>
 		<form:form method="POST" action="${pageContext.request.contextPath}/course-added" modelAttribute="subject" >
 			<div class="form-group">
-				<form:input type="text" path="subjectTitle" name="subjectTitle" class="form-control" placeholder="Subject Title" />
+				<form:input type="text" path="subjectTitle" name="subjectTitle" class="form-control" placeholder="Subject Title" required="true" />
 				<form:errors path="subjectTitle" cssClass="error"></form:errors>
 			</div>
 			<c:if test="${teachers.size() > 0}">

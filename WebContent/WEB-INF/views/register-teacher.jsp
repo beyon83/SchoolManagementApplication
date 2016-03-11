@@ -91,23 +91,23 @@
 
 	<div class="form-container">
 		<c:choose>
-			<c:when test="${subjects != null}">
+			<c:when test="${subjects.size() > 0}">
 				<h4>Register new teacher</h4>
 				<form:form method="POST" action="${pageContext.request.contextPath}/teacher-registered" modelAttribute="teacher" >
 					<div class="form-group">
-						<form:input type="text" path="username" name="username" class="form-control" placeholder="Username" />
+						<form:input type="text" path="username" name="username" class="form-control" placeholder="Username" required="true" />
 						<form:errors path="username" cssClass="error"></form:errors>
 					</div>
 					<div class="form-group">
-						<form:input type="text" path="password" name="password" placeholder="Password" class="form-control" />
+						<form:input type="text" path="password" name="password" placeholder="Password" class="form-control" required="true" />
 						<form:errors path="password" cssClass="error"></form:errors>
 					</div>
 					<div class="form-group">
-						<form:input type="text" path="firstName" name="firstName" class="form-control" placeholder="First name" />
+						<form:input type="text" path="firstName" name="firstName" class="form-control" placeholder="First name" required="true" />
 						<form:errors path="firstName" cssClass="error"></form:errors>
 					</div>
 					<div class="form-group">
-						<form:input type="text" path="lastName" name="lastName" class="form-control" placeholder="Last name" />
+						<form:input type="text" path="lastName" name="lastName" class="form-control" placeholder="Last name" required="true" />
 						<form:errors path="lastName" cssClass="error"></form:errors>
 					</div>
 					<label>Assign one or more subjects to this teacher: </label>

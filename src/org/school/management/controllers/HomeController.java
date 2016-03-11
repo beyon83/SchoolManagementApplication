@@ -250,13 +250,17 @@ public class HomeController {
 	
 	/** Edit subjects (assign teacher to the subject) */
 	@RequestMapping("/subject-edited")
-	public String subjectEdited(@RequestParam("id") long subjectId, @RequestParam("assignedTeacher") String assignedTeacher) {
-		Subject subject = subjectDao.getEntityById(subjectId);
-		Teacher teacher = teacherDao.getTeacherByUsername(assignedTeacher);
-		subject.setTeacher(teacher);
-		teacher.getSubjects().add(subject);
-		subjectDao.updateEntity(subject); // update "subjects", assign teacher
-		teacherDao.updateEntity(teacher); // update "teacher_subjects"
+	public String subjectEdited(@RequestParam("id") Long subjectId, @RequestParam(value="assignedTeacher", required=false) String assignedTeacher) {
+		if(subjectId != null) {
+			Subject subject = subjectDao.getEntityById(subjectId);
+			if(assignedTeacher != null) {
+				Teacher teacher = teacherDao.getTeacherByUsername(assignedTeacher);
+				subject.setTeacher(teacher);
+				teacher.getSubjects().add(subject);
+				teacherDao.updateEntity(teacher); // update "teacher_subjects"
+			}
+			subjectDao.updateEntity(subject); // update "subjects", assign teacher
+		}
 		return "redirect:/courses";
 	}
 	
@@ -297,23 +301,26 @@ public class HomeController {
 		
 		model.addAttribute("id", id);
 		
-		Student student = studentDao.getStudentWithSubjects(id);
-		Subject subject = new Subject();
-		Teacher teacher = new Teacher();
-		
-		for(int i = 0; i < assignedClasses.length; i++) {
-			subject = subjectDao.getSubjectByTitle(assignedClasses[i]);
-			student.getSubjects().add(subject);
+		if(assignedClasses != null) {
 			
-			teacher = subject.getTeacher();
+			Student student = studentDao.getStudentWithSubjects(id);
+			Subject subject = new Subject();
+			Teacher teacher = new Teacher();
 			
-			subject.setTeacher(teacher);
-			teacher.getStudents().add(student);
-			student.getTeachers().add(teacher);
+			for(int i = 0; i < assignedClasses.length; i++) {
+				subject = subjectDao.getSubjectByTitle(assignedClasses[i]);
+				student.getSubjects().add(subject);
+				
+				teacher = subject.getTeacher();
+				
+				subject.setTeacher(teacher);
+				teacher.getStudents().add(student);
+				student.getTeachers().add(teacher);
+			}
+			
+			userDao.updateEntity(student);
+			userDao.updateEntity(teacher);
 		}
-		
-		userDao.updateEntity(student);
-		userDao.updateEntity(teacher);
 		
 		return "redirect:/admin-student";
 	}

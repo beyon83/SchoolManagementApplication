@@ -30,6 +30,7 @@ public class Subject {
 	@ManyToMany(mappedBy="subjects", fetch=FetchType.LAZY)
 	private Set<Student> students = new HashSet<>();
 	
+		
 	public Subject() {
 		
 	}

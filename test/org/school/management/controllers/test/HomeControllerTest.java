@@ -1,5 +1,6 @@
 package org.school.management.controllers.test;
 
+import static org.junit.Assert.*;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.doReturn;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -10,6 +11,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.setup.MockMvcBuilders.standaloneSetup;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
+import java.util.List;
 import java.util.Set;
 
 import org.junit.Before;
@@ -33,6 +35,7 @@ import org.school.management.teacher.dao.TeacherDao;
 import org.school.management.user.dao.UserDao;
 import org.springframework.security.core.Authentication;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.web.servlet.view.InternalResourceViewResolver;
 
 public class HomeControllerTest {
 	
@@ -73,10 +76,15 @@ public class HomeControllerTest {
 	@Before
 	public void setUp() {
 		
+		/** Set viewResolver in standalone mode to avoid "Circular view path exception" in some test cases */
+		InternalResourceViewResolver viewResolver = new InternalResourceViewResolver();
+		viewResolver.setPrefix("/WEB-INF/views/");
+		viewResolver.setSuffix(".jsp");
+		
 		MockitoAnnotations.initMocks(this);
 		
 		/* Setup Spring test in standalone mode */
-		mockMvc = standaloneSetup(controller).build();
+		mockMvc = standaloneSetup(controller).setViewResolvers(viewResolver).build();
 		
 		user = new User();
 		admin = new Admin();
@@ -85,6 +93,7 @@ public class HomeControllerTest {
 		teacher = new Teacher();
 		grades = new Grades();
 		requests = requestDao.getAllRequests();
+		
 	}
 	
 	@Test
@@ -123,8 +132,56 @@ public class HomeControllerTest {
 		doReturn(student).when(userDao).saveEntity(student);
 		doReturn(subject).when(subjectDao).getSubjectByTitle(anyString());
 		mockMvc.perform(post("/student-registered"))
-		.andDo(print())
+//		.andDo(print())
 		.andExpect(view().name("redirect:/"));
+	}
+	
+	@Test
+	public void registerSubject() throws Exception {
+		doReturn(teacher).when(teacherDao).getTeacherByUsername(anyString());
+		doReturn(subject).when(subjectDao).saveEntity(subject);
+		mockMvc.perform(post("/course-added"))
+		.andExpect(view().name("redirect:/"));
+	}
+	
+	@Test
+	public void listAllSubjects() throws Exception {
+		java.util.List<Subject> subjects = new java.util.ArrayList<>();
+		doReturn(subjects).when(subjectDao).getAllSubjects();
+		assertNotNull(subjects);
+		mockMvc.perform(get("/courses"))
+		.andDo(print())
+		.andExpect(status().isOk())
+		.andExpect(model().attribute("subjects", subjects))
+		.andExpect(view().name("courses"));
+	}
+	
+	@Test
+	public void assignTeacherToSubject() throws Exception {
+		Long subjectId = 1L;
+		doReturn(subject).when(subjectDao).getSubjectById(subjectId);
+		doReturn(teacher).when(teacherDao).getTeacherByUsername(anyString());
+		mockMvc.perform(post("/subject-edited?id=" + subjectId))
+		.andExpect(view().name("redirect:/courses"));
+	}
+	
+	@Test
+	public void getAllStudents() throws Exception {
+		List<Student> students = (List<Student>) studentDao.getAllEntities();
+		doReturn(students).when(studentDao).getAllEntities();
+		mockMvc.perform(get("/get-all-students"))
+		.andExpect(status().isOk())
+		.andExpect(view().name("students"));
+	}
+	
+	@Test
+	public void assigningClassesToStudentByAdmin() throws Exception {
+		final long ID = 1L;
+		doReturn(student).when(studentDao).getStudentWithSubjects(ID);
+		doReturn(subject).when(subjectDao).getSubjectByTitle(anyString());
+		mockMvc.perform(post("/class-assigned/" + ID))
+//		.andExpect(status().isOk())
+		.andExpect(view().name("redirect:/admin-student"));
 	}
 
 }
