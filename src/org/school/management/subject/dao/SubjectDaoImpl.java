@@ -22,7 +22,6 @@ public class SubjectDaoImpl extends GenericDaoImpl<Subject, Long> implements Sub
 	public List<Subject> getAllSubjects() {
 		Query query = getSession().createQuery("FROM Subject");
 		List<Subject> subjects = query.list();
-//		List<Subject> subjects = (List<Subject>) getAllEntities();
 		for(Subject subject : subjects) {
 			Hibernate.initialize(subject.getSubjectTitle());
 			Hibernate.initialize(subject.getStudents());

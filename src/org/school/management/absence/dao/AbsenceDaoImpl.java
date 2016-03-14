@@ -16,8 +16,7 @@ public class AbsenceDaoImpl extends GenericDaoImpl<Absence, Long> implements Abs
 	public Long getAbsencesOfStudent(long id) {
 		Query query = getSession().createQuery("SELECT COUNT(*) FROM Absence WHERE student = :id");
 		query.setLong("id", id);
-		long count = (long) query.uniqueResult();
-		return count;
+		return (long) query.uniqueResult();
 	}
 
 }

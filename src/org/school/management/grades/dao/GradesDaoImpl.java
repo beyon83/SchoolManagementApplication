@@ -3,6 +3,7 @@ package org.school.management.grades.dao;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.logging.Logger;
 
 import org.hibernate.Hibernate;
 import org.hibernate.Query;
@@ -20,6 +21,8 @@ public class GradesDaoImpl extends GenericDaoImpl<Grades, Long> implements Grade
 	@Autowired
 	private StudentDao studentDao;
 	
+	static final Logger logger = Logger.getLogger(GradesDaoImpl.class.getName());
+	
 	public GradesDaoImpl() {
 		super(Grades.class);
 	}
@@ -30,8 +33,7 @@ public class GradesDaoImpl extends GenericDaoImpl<Grades, Long> implements Grade
 		Query query = getSession().createQuery("FROM Grades WHERE student = :studentId AND subject = :subjectId");
 		query.setLong("studentId", studentId);
 		query.setLong("subjectId", subjectId);
-		List<Grades> grades = query.list();
-		return grades;
+		return query.list();
 	}
 
 	@Override
@@ -51,26 +53,25 @@ public class GradesDaoImpl extends GenericDaoImpl<Grades, Long> implements Grade
 	public List<Grades> getGradesOfStudent(Student student) {
 		Query query = getSession().createQuery("FROM Grades WHERE student = :studentId");
 		query.setLong("studentId", student.getId());
-		List<Grades> grades = query.list();
-		return grades;
+		return query.list();
 	}
 	
 	public List<Double> getAverageOfEachSubject(Student student) {
 		
-		student = studentDao.getStudentByName(student.getUsername());
-		Set<Subject> subjects = student.getSubjects();
+		Student student2 = studentDao.getStudentByName(student.getUsername());
+		Set<Subject> subjects = student2.getSubjects();
 		
-		Hibernate.initialize(student.getSubjects());
-		Hibernate.initialize(student.getGrades());
+		Hibernate.initialize(student2.getSubjects());
+		Hibernate.initialize(student2.getGrades());
 		 
 		ArrayList<Double> subjectAverages = new ArrayList<>();
 		
 		for(Subject subject : subjects) { // Subjects of logged student
 			double sum = 0;
 			int counter = 0;
-			for(Grades grade : student.getGrades()) { // Grades of logged student
+			for(Grades grade : student2.getGrades()) { // Grades of logged student
 				if(subject.getSubjectTitle().equals(grade.getSubject().getSubjectTitle())) {
-					System.out.println("SUBJECT: " + subject.getSubjectTitle() + " | GRADE: " + grade.getGrade());
+					logger.info("SUBJECT: " + subject.getSubjectTitle() + " | GRADE: " + grade.getGrade());
 					sum += grade.getGrade();
 					counter++;
 				}
@@ -86,8 +87,8 @@ public class GradesDaoImpl extends GenericDaoImpl<Grades, Long> implements Grade
 		
 		List<Double> avgOfEachSubject = getAverageOfEachSubject(student);
 		
-		double sum = 0;
-		double total = 0;
+		int sum = 0;
+		double total;
 		int counter = 0;
 		
 		for(int i = 0; i < avgOfEachSubject.size(); i++) {

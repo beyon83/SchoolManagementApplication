@@ -56,6 +56,14 @@ public class HomeController {
 	
 	@Autowired
 	private RequestDao requestDao;
+	
+	private static final String REQUESTS = "requests";
+	private static final String SUBJECT = "subject";
+	private static final String SUBJECTS = "subjects";
+	private static final String STUDENTS = "students";
+	private static final String STUDENT = "student";
+	private static final String NUMB_OF_ABSENCES = "numbOfAbsences";
+	private static final String REDIRECT = "redirect:/";
 
 	/** index page, home page */
 	@RequestMapping({"/", "/home"})
@@ -69,10 +77,10 @@ public class HomeController {
 		
 		if(authentication != null) {
 			String authority = authentication.getAuthorities().toString();
-			if(authority.equals("[Admin]")) {
+			if("[Admin]".equals(authority)) {
 				java.util.Set<Request> requests = requestDao.getAllRequests();
 				if(requests != null) {
-					session.setAttribute("requests", requests);
+					session.setAttribute(REQUESTS, requests);
 				}
 			}
 		}
@@ -93,7 +101,7 @@ public class HomeController {
 		if(auth != null) {
 			new SecurityContextLogoutHandler().logout(request, response, auth);
 		}
-		return "redirect:/";
+		return REDIRECT;
 	}
 	
 	/** Admin's registration form */
@@ -111,7 +119,7 @@ public class HomeController {
 		
 		admin.setAuthority("Admin");
 		userDao.saveEntity(admin);
-		return "redirect:/";
+		return REDIRECT;
 	}
 	
 	/** Teacher's registration form */
@@ -119,9 +127,8 @@ public class HomeController {
 	public String registerTeacher(@ModelAttribute("teacher") Teacher teacher, Model model) {
 		
 		/** Fetch all subjects available, and put them inside <select> tag as options */
-//		List<Subject> listOfSubjects = subjectDao.getAllSubjects();
 		List<String> unassignedSubjects = subjectDao.getUnassignedSubjectsForTeacher();
-		model.addAttribute("subjects", unassignedSubjects);
+		model.addAttribute(SUBJECTS, unassignedSubjects);
 		
 		return "register-teacher";
 	}
@@ -149,7 +156,7 @@ public class HomeController {
 		userDao.saveEntity(teacher);
 		subjectDao.updateEntity(subject);
 		
-		return "redirect:/";
+		return REDIRECT;
 	}
 	
 	/** Student's registration form */
@@ -158,7 +165,7 @@ public class HomeController {
 		
 		/** Fetch all subjects available, and put them inside <select> tag as options */
 		List<Subject> listOfSubjects = subjectDao.getAllSubjects();
-		model.addAttribute("subjects", listOfSubjects);
+		model.addAttribute(SUBJECTS, listOfSubjects);
 		
 		return "register-student";
 	}
@@ -172,13 +179,12 @@ public class HomeController {
 		
 		student.setAuthority("Student");
 		
-	    Subject subject = new Subject();
 	    Teacher teacher = new Teacher();
 	    
 	    if(selectedSubjects != null) {
 			for(int i = 0; i < selectedSubjects.length; i++) {
 				/** Dynamically add one or more subjects for the current student */
-				subject = subjectDao.getSubjectByTitle(selectedSubjects[i]);
+				Subject subject = subjectDao.getSubjectByTitle(selectedSubjects[i]);
 				student.getSubjects().add(subject);
 //				teacher = teacherDao.getTeacherByUsername(subject.getTeacher().getUsername());
 //				teacher.getSubjects().add(subject);
@@ -193,7 +199,7 @@ public class HomeController {
 	    }
 		
  		userDao.saveEntity(student);
-		return "redirect:/";
+		return REDIRECT;
 	}
 	
 	/** Create new subject */
@@ -208,12 +214,11 @@ public class HomeController {
 	@RequestMapping("/course-added")
 	public String courseAdded(Subject subject, @RequestParam(value="assignedTeacher", required=false) String assignedTeacher) {
 		if(assignedTeacher != null) {
-			Teacher teacher = new Teacher();
-			teacher = teacherDao.getTeacherByUsername(assignedTeacher);
+			Teacher teacher = teacherDao.getTeacherByUsername(assignedTeacher);
 			subject.setTeacher(teacher);
 		}
 		subjectDao.saveEntity(subject);
-		return "redirect:/";
+		return REDIRECT;
 	}
 	
 	/** List all subjects */
@@ -226,14 +231,14 @@ public class HomeController {
 			/** Get authority of the logged user */
 			String authority = authentication.getAuthorities().toString();
 			
-			if(authority.equals("[Student]")) {
+			if("[Student]".equals(authority)) {
 				Student student = studentDao.getStudentByName(loggedStudent);
 				model.addAttribute("loggedStudent", student.getUsername());
 			}
 		}
 		
 		List<Subject> subjects = subjectDao.getAllSubjects();
-		model.addAttribute("subjects", subjects);
+		model.addAttribute(SUBJECTS, subjects);
 		
 		return "courses";
 	}
@@ -243,7 +248,7 @@ public class HomeController {
 	public String editSubject(@RequestParam("id") long subjectId, Model model) {
 		Subject subject = subjectDao.getEntityById(subjectId);
 		List<Teacher> teachers = teacherDao.getAllTeachers();
-		model.addAttribute("subject", subject);
+		model.addAttribute(SUBJECT, subject);
 		model.addAttribute("teachers", teachers);
 		return "edit-subject";
 	}
@@ -268,7 +273,7 @@ public class HomeController {
 	@RequestMapping("/get-all-students")
 	public String getAllStudents(Model model) {
 		List<Student> students = (List<Student>) studentDao.getAllEntities();
-		model.addAttribute("students", students);
+		model.addAttribute(STUDENTS, students);
 		return "students";
 	}
 	
@@ -276,7 +281,7 @@ public class HomeController {
 	@RequestMapping("/admin-get-all-students")
 	public String getStudentsByAdmin(Model model) {
 		List<Student> students = (List<Student>) studentDao.getAllEntities();
-		model.addAttribute("students", students);
+		model.addAttribute(STUDENTS, students);
 		return "admin-students";
 	}
 	
@@ -286,11 +291,10 @@ public class HomeController {
 		
 		Student student = studentDao.getStudentWithSubjects(id);
 		
-//		List<Subject> subjects = subjectDao.getAllSubjects();
 		List<String> subjects = subjectDao.getUnattendedSubjects(student);
 		
-		model.addAttribute("student", student);
-		model.addAttribute("subjects", subjects);
+		model.addAttribute(STUDENT, student);
+		model.addAttribute(SUBJECTS, subjects);
 		
 		return "admin-student";
 	}
@@ -304,11 +308,10 @@ public class HomeController {
 		if(assignedClasses != null) {
 			
 			Student student = studentDao.getStudentWithSubjects(id);
-			Subject subject = new Subject();
 			Teacher teacher = new Teacher();
 			
 			for(int i = 0; i < assignedClasses.length; i++) {
-				subject = subjectDao.getSubjectByTitle(assignedClasses[i]);
+				Subject subject = subjectDao.getSubjectByTitle(assignedClasses[i]);
 				student.getSubjects().add(subject);
 				
 				teacher = subject.getTeacher();
@@ -340,9 +343,9 @@ public class HomeController {
 		/** Return only subjects bounded to this teacher */
 		List<Subject> subjects = studentDao.getSubjectsByTeacher(teacher);
 		
-		model.addAttribute("students", students);
+		model.addAttribute(STUDENTS, students);
 		model.addAttribute("teacher", teacher);
-		model.addAttribute("subjects", subjects);
+		model.addAttribute(SUBJECTS, subjects);
 		return "students";
 	}
 	
@@ -362,10 +365,10 @@ public class HomeController {
 		
 		Subject subject = subjectDao.getEntityById(subjectId);
 		
-		model.addAttribute("student", student);
-		model.addAttribute("numbOfAbsences", count);
+		model.addAttribute(STUDENT, student);
+		model.addAttribute(NUMB_OF_ABSENCES, count);
 		model.addAttribute("grades", grades);
-		model.addAttribute("subject", subject);
+		model.addAttribute(SUBJECT, subject);
 		model.addAttribute("totalAverage", totalAverage);
 		return "student";
 	}
@@ -376,7 +379,7 @@ public class HomeController {
 		
 		/** Obtain selected student by ID */
 		Student student = studentDao.getStudentWithSubjects(studentId);
-		model.addAttribute("student", student);
+		model.addAttribute(STUDENT, student);
 		
 		/** Obtain current student's subject */
 		Subject subject = subjectDao.getSubjectById(subjectId);
@@ -394,7 +397,7 @@ public class HomeController {
 		}
 		
 		/** Insert absences for selected student */
-		if(attendingClass.equals("false")) {
+		if("false".equals(attendingClass)) {
 			Absence absence = new Absence();
 			absence.setStudent(student);
 			absence.setSubject(subject);
@@ -404,9 +407,9 @@ public class HomeController {
 		long count = absenceDao.getAbsencesOfStudent(student.getId());
 		List<Grades> grades = gradesDao.getGradesByStudent(student.getId(), subjectId);
 		
-		model.addAttribute("numbOfAbsences", count);
+		model.addAttribute(NUMB_OF_ABSENCES, count);
 		model.addAttribute("grades", grades);
-		model.addAttribute("subject", subject);
+		model.addAttribute(SUBJECT, subject);
 		
 		return "student";
 	}
@@ -421,8 +424,8 @@ public class HomeController {
 		
 		Double totalAverage = gradesDao.getTotalAverageOfStudent(student);
 		
-		model.addAttribute("student", student);
-		model.addAttribute("numbOfAbsences", count);
+		model.addAttribute(STUDENT, student);
+		model.addAttribute(NUMB_OF_ABSENCES, count);
 		model.addAttribute("totalAverage", totalAverage);
 		return "student-account";
 	}
@@ -452,7 +455,7 @@ public class HomeController {
 	@RequestMapping("/request-replied/{student}/{subjectId}/{requestId}")
 	public String requestReplied(@RequestParam("request") String requestReply, @PathVariable("student") String studentName, @PathVariable("subjectId") long subjectId, @PathVariable("requestId") long requestId, HttpSession session) {
 		
-		if(requestReply.equals("Accept")) {
+		if("Accept".equals(requestReply)) {
 			Student student = studentDao.getStudentByName(studentName);
 			Subject subject = subjectDao.getSubjectById(subjectId);
 			Teacher teacher = teacherDao.getTeacherByUsername(subject.getTeacher().getUsername());
@@ -471,9 +474,9 @@ public class HomeController {
 		requestDao.deleteEntity(request);
 		
 		if(requestDao.getAllRequests().size() > 0) {
-			session.setAttribute("requests", requestDao.getAllRequests());
+			session.setAttribute(REQUESTS, requestDao.getAllRequests());
 		} else {
-			session.setAttribute("requests", "");
+			session.setAttribute(REQUESTS, "");
 		}
 		
 		return "redirect:/review-requests";

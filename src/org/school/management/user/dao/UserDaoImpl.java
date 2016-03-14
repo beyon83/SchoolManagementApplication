@@ -26,9 +26,9 @@ public class UserDaoImpl extends GenericDaoImpl<User, Long> implements UserDao {
 	
 	@Override
 	public User getEntityByName(String username) {
-		Criteria criteria = getSession().createCriteria(persistentClass);
+		Criteria criteria = getSession().createCriteria(User.class);
 		criteria.add(Restrictions.eq("username", username));
-		User user = new User();
+		User user;
 		if(criteria.list() == null) {
 			user = (User) criteria.uniqueResult();
 		} else {

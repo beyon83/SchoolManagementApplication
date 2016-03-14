@@ -12,7 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public abstract class GenericDaoImpl<E, K extends Serializable> implements GenericDao<E, K> {
 	
-	public Class<E> persistentClass;
+	private Class<E> persistentClass;
 	
 	@Autowired
 	private SessionFactory sessionFactory;

@@ -27,7 +27,6 @@ public class TeacherDaoImpl extends GenericDaoImpl<Teacher, Long> implements Tea
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<Teacher> getAllTeachers() {
-//		List<Teacher> teachers = (List<Teacher>) getAllEntities();
 		Query query = getSession().createQuery("FROM Teacher");
 		List<Teacher> teachers = query.list();
 		for(Teacher teacher : teachers) {
