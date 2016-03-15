@@ -88,6 +88,7 @@
 	</nav> <!-- End of navigation bar -->
 	
 	<div class="container">
+	
 		<table class="table table-striped">
 			<thead>
 				<tr>
@@ -106,6 +107,25 @@
 			</c:forEach>	
 			</tbody>
 		</table>
+		
+		<!-- Pagination links -->
+		<ul class="pagination pagination-sm">
+			<c:set value="${pageContext.request.queryString}" var="currentPage" />
+			<c:if test="${empty currentPage}">
+				<c:set value="page=1" var="currentPage" />
+			</c:if>
+			<c:forEach items="${pagination}" var="page">
+				<c:choose>
+					<c:when test="${'page=' += page ne currentPage}">
+						<li><a href="<c:url value='/admin-get-all-students?page=${page}' />"><c:out value="${page}" /></a></li>
+					</c:when>
+					<c:otherwise>
+						<li class="active"><a href="<c:url value='/admin-get-all-students?page=${page}' />"><c:out value="${page}" /></a></li>
+					</c:otherwise>
+				</c:choose>
+			</c:forEach>
+		</ul>
+		
     </div>
 
 </body>

@@ -8,6 +8,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.school.management.absence.dao.AbsenceDao;
+import org.school.management.admin.dao.AdminDao;
 import org.school.management.grades.dao.GradesDao;
 import org.school.management.model.Absence;
 import org.school.management.model.Admin;
@@ -57,13 +58,16 @@ public class HomeController {
 	@Autowired
 	private RequestDao requestDao;
 	
+	@Autowired
+	private AdminDao adminDao;
+	
 	private static final String REQUESTS = "requests";
 	private static final String SUBJECT = "subject";
 	private static final String SUBJECTS = "subjects";
 	private static final String STUDENTS = "students";
 	private static final String STUDENT = "student";
 	private static final String NUMB_OF_ABSENCES = "numbOfAbsences";
-	private static final String REDIRECT = "redirect:/";
+	private static final String REDIRECT_HOME = "redirect:/";
 
 	/** index page, home page */
 	@RequestMapping({"/", "/home"})
@@ -101,7 +105,7 @@ public class HomeController {
 		if(auth != null) {
 			new SecurityContextLogoutHandler().logout(request, response, auth);
 		}
-		return REDIRECT;
+		return REDIRECT_HOME;
 	}
 	
 	/** Admin's registration form */
@@ -119,7 +123,7 @@ public class HomeController {
 		
 		admin.setAuthority("Admin");
 		userDao.saveEntity(admin);
-		return REDIRECT;
+		return REDIRECT_HOME;
 	}
 	
 	/** Teacher's registration form */
@@ -156,7 +160,7 @@ public class HomeController {
 		userDao.saveEntity(teacher);
 		subjectDao.updateEntity(subject);
 		
-		return REDIRECT;
+		return REDIRECT_HOME;
 	}
 	
 	/** Student's registration form */
@@ -195,11 +199,13 @@ public class HomeController {
 				teacher.getStudents().add(student);
 				student.getTeachers().add(teacher);
 			}
-			userDao.updateEntity(teacher);
+			userDao.saveEntity(student);
+	 		userDao.updateEntity(teacher);
+	    } else {
+	    	userDao.saveEntity(student);
 	    }
 		
- 		userDao.saveEntity(student);
-		return REDIRECT;
+		return REDIRECT_HOME;
 	}
 	
 	/** Create new subject */
@@ -218,7 +224,7 @@ public class HomeController {
 			subject.setTeacher(teacher);
 		}
 		subjectDao.saveEntity(subject);
-		return REDIRECT;
+		return REDIRECT_HOME;
 	}
 	
 	/** List all subjects */
@@ -279,9 +285,14 @@ public class HomeController {
 	
 	/** Fetch all students by admin */
 	@RequestMapping("/admin-get-all-students")
-	public String getStudentsByAdmin(Model model) {
-		List<Student> students = (List<Student>) studentDao.getAllEntities();
+	public String getStudentsByAdmin(Model model, @RequestParam(value="page", required=false) Integer page) {
+		if(page == null) {
+			page = 1;
+		}
+		List<Student> students = adminDao.paginatedListOfStudents(page);
+		List<Integer> pagination = adminDao.paginationNumbers(page);
 		model.addAttribute(STUDENTS, students);
+		model.addAttribute("pagination", pagination);
 		return "admin-students";
 	}
 	
