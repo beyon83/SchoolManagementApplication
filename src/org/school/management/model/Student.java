@@ -18,6 +18,8 @@ import javax.persistence.Table;
 @Table(name="students")
 public class Student extends User {
 
+	private static final long serialVersionUID = 1L;
+
 	@ManyToMany(cascade=CascadeType.ALL, fetch=FetchType.LAZY)
 	@JoinTable(name="student_subjects", joinColumns=@JoinColumn(name="student_id"), inverseJoinColumns=@JoinColumn(name="subject_id"))
 	private Set<Subject> subjects = new HashSet<>();

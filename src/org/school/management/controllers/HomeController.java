@@ -6,6 +6,7 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import javax.validation.Valid;
 
 import org.school.management.absence.dao.AbsenceDao;
 import org.school.management.admin.dao.AdminDao;
@@ -29,6 +30,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.Errors;
+import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -116,7 +120,15 @@ public class HomeController {
 	
 	/** Admin got registered */
 	@RequestMapping("/admin-registered")
-	public String adminRegistered(User user, Admin admin) {
+	public String adminRegistered(User user, @Valid @ModelAttribute("admin") Admin admin, Errors errors) {
+		
+		if(userDao.isUsernameTaken(admin.getUsername())) {
+			errors.rejectValue("username", "admin.username", "*username " + admin.getUsername() + " is already taken.");
+		}
+		
+		if(errors.hasErrors()) {
+			return "register-admin";
+		}
 		
 		user.setAuthority("Admin");
 		userDao.saveEntity(user);
@@ -139,7 +151,17 @@ public class HomeController {
 	
 	/** Teacher got registered */
 	@RequestMapping("/teacher-registered")
-	public String teacherRegistered(User user, Teacher teacher, @RequestParam(value="getSelectedSubjects", required=false) String[] selectedSubjects) {
+	public String teacherRegistered(User user, @Valid @ModelAttribute("teacher") Teacher teacher, Errors errors, @RequestParam(value="getSelectedSubjects", required=false) String[] selectedSubjects, Model model) {
+		
+		if(userDao.isUsernameTaken(teacher.getUsername())) {
+			errors.rejectValue("username", "teacher.username", "*username " + teacher.getUsername() + " is already taken.");
+		}
+		
+		if(errors.hasErrors()) {
+			List<String> unassignedSubjects = subjectDao.getUnassignedSubjectsForTeacher();
+			model.addAttribute(SUBJECTS, unassignedSubjects);
+			return "register-teacher";
+		}
 		
 		user.setAuthority("Teacher");
 		userDao.saveEntity(user);
@@ -176,7 +198,17 @@ public class HomeController {
 	
 	/** Student got registered */
 	@RequestMapping("/student-registered")
-	public String studentRegistered(User user, Student student, @RequestParam(value="getSelectedSubjects", required=false) String[] selectedSubjects) {
+	public String studentRegistered(User user, @Valid @ModelAttribute("student") Student student, Errors errors, @RequestParam(value="getSelectedSubjects", required=false) String[] selectedSubjects, Model model) {
+		
+		if(userDao.isUsernameTaken(student.getUsername())) {
+			errors.rejectValue("username", "student.username", "*username " + student.getUsername() + " is already taken.");
+		}
+		
+		if(errors.hasErrors()) {
+			List<Subject> listOfSubjects = subjectDao.getAllSubjects();
+			model.addAttribute(SUBJECTS, listOfSubjects);
+			return "register-student";
+		}
 		
 		user.setAuthority("Student");
 		userDao.saveEntity(user);

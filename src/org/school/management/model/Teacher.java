@@ -18,7 +18,9 @@ import javax.persistence.Table;
 @Table(name="teachers")
 public class Teacher extends User {
 
-//	@OneToMany(mappedBy = "teacher", cascade=CascadeType.ALL, fetch=FetchType.EAGER)
+	private static final long serialVersionUID = 1L;
+
+	//	@OneToMany(mappedBy = "teacher", cascade=CascadeType.ALL, fetch=FetchType.EAGER)
 	@OneToMany(cascade=CascadeType.ALL, fetch=FetchType.LAZY)
 	@JoinTable(name="teacher_subjects", joinColumns=@JoinColumn(name="teacher_id"), inverseJoinColumns=@JoinColumn(name="subject_id"))
 	private Set<Subject> subjects = new HashSet<>();

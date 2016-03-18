@@ -97,11 +97,11 @@
 		<form:form method="POST" action="${pageContext.request.contextPath}/admin-registered" modelAttribute="admin" >
 			<div class="form-group">
 				<form:input type="text" path="username" name="username" class="form-control" placeholder="Username" required="true" />
-				<form:errors path="username" cssClass="error"></form:errors>
+				<small><form:errors path="username" cssClass="error"></form:errors></small>
 			</div>
 			<div class="form-group">
-				<form:input type="text" path="password" name="password" placeholder="Password" class="form-control" required="true" />
-				<form:errors path="password" cssClass="error"></form:errors>
+				<form:input type="text" path="passwordTransient" name="passwordTransient" placeholder="Password" class="form-control" required="true" />
+				<small><form:errors path="passwordTransient" cssClass="error"></form:errors></small>
 			</div>
 <!-- 			<div class="form-group"> -->
 <!-- 				<input type="text" name="confirmPassword" placeholder="Confirm password" class="form-control" /> -->
@@ -109,11 +109,11 @@
 <!-- 			</div> -->
 			<div class="form-group">
 				<form:input type="text" path="firstName" name="firstName" class="form-control" placeholder="First name" required="true" />
-				<form:errors path="firstName" cssClass="error"></form:errors>
+				<small><form:errors path="firstName" cssClass="error"></form:errors></small>
 			</div>
 			<div class="form-group">
 				<form:input type="text" path="lastName" name="lastName" class="form-control" placeholder="Last name" required="true" />
-				<form:errors path="lastName" cssClass="error"></form:errors>
+				<small><form:errors path="lastName" cssClass="error"></form:errors></small>
 			</div>
 			<div class="form-group">
 				<input type="submit" value="Submit" class="btn btn-info btn-block" />
