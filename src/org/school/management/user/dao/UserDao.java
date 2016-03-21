@@ -8,5 +8,7 @@ public interface UserDao extends GenericDao<User, Long> {
 	User getEntityByName(String username);
 
 	boolean isUsernameTaken(String username);
+	
+	byte[] getImage(long id);
 
 }

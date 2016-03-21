@@ -44,5 +44,10 @@ public class UserDaoImpl extends GenericDaoImpl<User, Long> implements UserDao {
 		query.setParameter("username", username);
 		return query.list().size() > 0 ? true : false;
 	}
+
+	@Override
+	public byte[] getImage(long id) {
+		return getSession().get(User.class, id).getProfileImage();
+	}
 	
 }

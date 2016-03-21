@@ -91,7 +91,7 @@
 
 	<div class="form-container">
 		<h4>Register new student</h4>
-		<form:form method="POST" action="${pageContext.request.contextPath}/student-registered" modelAttribute="student" >
+		<form:form method="POST" action="${pageContext.request.contextPath}/student-registered" modelAttribute="student" enctype="multipart/form-data" >
 			<div class="form-group">
 				<form:input type="text" path="username" name="username" class="form-control" placeholder="Username" required="true"  />
 				<small><form:errors path="username" cssClass="error"></form:errors></small>
@@ -118,6 +118,10 @@
 					<option>${subject.subjectTitle}</option>
 				</c:forEach>
 			</select>
+			<p></p>
+			<label>Select profile photo for upload:</label><br />
+			<span style="position: relative; bottom: 8px;"><em><small>(recommended size: 100 x 100 pixels)</small></em></span>
+			<input type="file" name="image" required />
 			<p></p>
 			<div class="form-group">
 				<input type="submit" value="Submit" class="btn btn-info btn-block" />

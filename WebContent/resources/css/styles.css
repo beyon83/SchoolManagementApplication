@@ -76,19 +76,9 @@ html body {
 /* 	border-bottom: 1px solid #f2f2f2; */
 }
 
-.student-header {
-	padding-left: 15px;
-/* 	background-color: #f7f7f7; */
-	height: 50px;
-}
-
 .student-header h4 {
 	margin-top: -20px;
 	padding-top: 15px;
-}
-
-.row-label {
-	width: 100px;
 }
 
 .student-row-group {

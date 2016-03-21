@@ -1,5 +1,6 @@
 package org.school.management.controllers;
 
+import java.io.IOException;
 import java.security.Principal;
 import java.util.List;
 
@@ -8,6 +9,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 
+import org.apache.log4j.Logger;
 import org.school.management.absence.dao.AbsenceDao;
 import org.school.management.admin.dao.AdminDao;
 import org.school.management.grades.dao.GradesDao;
@@ -30,13 +32,13 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
 import org.springframework.validation.Errors;
-import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.multipart.MultipartFile;
 
 @Controller
 public class HomeController {
@@ -65,6 +67,8 @@ public class HomeController {
 	@Autowired
 	private AdminDao adminDao;
 	
+	private static final Logger logger = Logger.getLogger(HomeController.class);
+	
 	private static final String REQUESTS = "requests";
 	private static final String SUBJECT = "subject";
 	private static final String SUBJECTS = "subjects";
@@ -73,7 +77,13 @@ public class HomeController {
 	private static final String NUMB_OF_ABSENCES = "numbOfAbsences";
 	private static final String REDIRECT_HOME = "redirect:/";
 
-	/** index page, home page */
+	/**
+	 * index page, home page
+	 * @param authentication
+	 * @param principal
+	 * @param session
+	 * @return
+	 */
 	@RequestMapping({"/", "/home"})
 	public String home(Authentication authentication, Principal principal, HttpSession session) {
 		
@@ -102,7 +112,12 @@ public class HomeController {
 		return "login";
 	}
 	
-	/** Logout function */
+	/**
+	 * Logout function
+	 * @param request
+	 * @param response
+	 * @return
+	 */
 	@RequestMapping("/logout")
 	public String logout(HttpServletRequest request, HttpServletResponse response) {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -112,13 +127,23 @@ public class HomeController {
 		return REDIRECT_HOME;
 	}
 	
-	/** Admin's registration form */
+	/**
+	 * Admin's registration form
+	 * @param admin
+	 * @return
+	 */
 	@RequestMapping("/register-admin")
 	public String registerAdmin(@ModelAttribute("admin") Admin admin) {
 		return "register-admin";
 	}
 	
-	/** Admin got registered */
+	/**
+	 * Admin got registered
+	 * @param user
+	 * @param admin
+	 * @param errors
+	 * @return
+	 */
 	@RequestMapping("/admin-registered")
 	public String adminRegistered(User user, @Valid @ModelAttribute("admin") Admin admin, Errors errors) {
 		
@@ -138,7 +163,12 @@ public class HomeController {
 		return REDIRECT_HOME;
 	}
 	
-	/** Teacher's registration form */
+	/**
+	 * Teacher's registration form
+	 * @param teacher
+	 * @param model
+	 * @return
+	 */
 	@RequestMapping("/register-teacher")
 	public String registerTeacher(@ModelAttribute("teacher") Teacher teacher, Model model) {
 		
@@ -149,7 +179,15 @@ public class HomeController {
 		return "register-teacher";
 	}
 	
-	/** Teacher got registered */
+	/**
+	 * Teacher got registered
+	 * @param user
+	 * @param teacher
+	 * @param errors
+	 * @param selectedSubjects
+	 * @param model
+	 * @return
+	 */
 	@RequestMapping("/teacher-registered")
 	public String teacherRegistered(User user, @Valid @ModelAttribute("teacher") Teacher teacher, Errors errors, @RequestParam(value="getSelectedSubjects", required=false) String[] selectedSubjects, Model model) {
 		
@@ -185,7 +223,12 @@ public class HomeController {
 		return REDIRECT_HOME;
 	}
 	
-	/** Student's registration form */
+	/**
+	 * Student's registration form
+	 * @param student
+	 * @param model
+	 * @return
+	 */
 	@RequestMapping("/register-student")
 	public String registerStudent(@ModelAttribute("student") Student student, Model model) {
 		
@@ -196,9 +239,18 @@ public class HomeController {
 		return "register-student";
 	}
 	
-	/** Student got registered */
+	/**
+	 * Student got registered
+	 * @param user
+	 * @param student
+	 * @param errors
+	 * @param selectedSubjects
+	 * @param model
+	 * @param multipartFile
+	 * @return
+	 */
 	@RequestMapping("/student-registered")
-	public String studentRegistered(User user, @Valid @ModelAttribute("student") Student student, Errors errors, @RequestParam(value="getSelectedSubjects", required=false) String[] selectedSubjects, Model model) {
+	public String studentRegistered(User user, @Valid @ModelAttribute("student") Student student, Errors errors, @RequestParam(value="getSelectedSubjects", required=false) String[] selectedSubjects, Model model, @RequestPart("image") MultipartFile multipartFile) {
 		
 		if(userDao.isUsernameTaken(student.getUsername())) {
 			errors.rejectValue("username", "student.username", "*username " + student.getUsername() + " is already taken.");
@@ -214,6 +266,12 @@ public class HomeController {
 		userDao.saveEntity(user);
 		
 		student.setAuthority("Student");
+		
+		try {
+			student.setProfileImage(multipartFile.getBytes());
+		} catch (IOException e) {
+			logger.info(e);
+		}
 		
 	    Teacher teacher = new Teacher();
 	    
@@ -240,7 +298,12 @@ public class HomeController {
 		return REDIRECT_HOME;
 	}
 	
-	/** Create new subject */
+	/**
+	 * Create new subject
+	 * @param subject
+	 * @param model
+	 * @return
+	 */
 	@RequestMapping("/add-course")
 	public String addCourse(@ModelAttribute("subject") Subject subject, Model model) {
 		List<Teacher> teachers = teacherDao.getAllTeachers();
@@ -248,7 +311,12 @@ public class HomeController {
 		return "add-course";
 	}
 	
-	/** New subject is added */
+	/**
+	 * New subject is added
+	 * @param subject
+	 * @param assignedTeacher
+	 * @return
+	 */
 	@RequestMapping("/course-added")
 	public String courseAdded(Subject subject, @RequestParam(value="assignedTeacher", required=false) String assignedTeacher) {
 		if(assignedTeacher != null) {
@@ -259,7 +327,12 @@ public class HomeController {
 		return REDIRECT_HOME;
 	}
 	
-	/** List all subjects */
+	/**
+	 * List all subjects
+	 * @param model
+	 * @param authentication
+	 * @return
+	 */
 	@RequestMapping("/courses")
 	public String courses(Model model, Authentication authentication) {
 		
@@ -281,7 +354,12 @@ public class HomeController {
 		return "courses";
 	}
 	
-	/** Edit subject when teacher is not assigned to the subject */
+	/**
+	 * Edit subject when teacher is not assigned to the subject
+	 * @param subjectId
+	 * @param model
+	 * @return
+	 */
 	@RequestMapping("/edit-subject")
 	public String editSubject(@RequestParam("id") long subjectId, Model model) {
 		Subject subject = subjectDao.getEntityById(subjectId);
@@ -291,7 +369,12 @@ public class HomeController {
 		return "edit-subject";
 	}
 	
-	/** Edit subjects (assign teacher to the subject) */
+	/**
+	 * Edit subjects (assign teacher to the subject)
+	 * @param subjectId
+	 * @param assignedTeacher
+	 * @return
+	 */
 	@RequestMapping("/subject-edited")
 	public String subjectEdited(@RequestParam("id") Long subjectId, @RequestParam(value="assignedTeacher", required=false) String assignedTeacher) {
 		if(subjectId != null) {
@@ -307,7 +390,11 @@ public class HomeController {
 		return "redirect:/courses";
 	}
 	
-	/** Fetch all registered students */
+	/**
+	 * Fetch all registered students
+	 * @param model
+	 * @return
+	 */
 	@RequestMapping("/get-all-students")
 	public String getAllStudents(Model model) {
 		List<Student> students = (List<Student>) studentDao.getAllEntities();
@@ -315,7 +402,12 @@ public class HomeController {
 		return "students";
 	}
 	
-	/** Fetch all students by admin */
+	/**
+	 * Fetch all students by admin
+	 * @param model
+	 * @param page
+	 * @return
+	 */
 	@RequestMapping("/admin-get-all-students")
 	public String getStudentsByAdmin(Model model, @RequestParam(value="page", required=false) Integer page) {
 		if(page == null) {
@@ -328,7 +420,12 @@ public class HomeController {
 		return "admin-students";
 	}
 	
-	/** Obtain particular student while logged as admin */
+	/**
+	 * Obtain particular student while logged as admin
+	 * @param id
+	 * @param model
+	 * @return
+	 */
 	@RequestMapping("/admin-student")
 	public String getStudentByAdmin(@RequestParam("id") long id, Model model) {
 		
@@ -342,7 +439,13 @@ public class HomeController {
 		return "admin-student";
 	}
 	
-	/** Assigning class to student by admin */
+	/**
+	 * Assigning class to student by admin
+	 * @param assignedClasses
+	 * @param id
+	 * @param model
+	 * @return
+	 */
 	@RequestMapping("/class-assigned/{id}")
 	public String assignClassToStudent(@RequestParam(value="assignedClasses", required=false) String[] assignedClasses, @PathVariable("id") long id, Model model) {
 		
@@ -371,7 +474,12 @@ public class HomeController {
 		return "redirect:/admin-student";
 	}
 	
-	/** List students */
+	/**
+	 * List students
+	 * @param model
+	 * @param principal
+	 * @return
+	 */
 	@RequestMapping("/get-students")
 	public String getStudents(Model model, Principal principal) {
 		
@@ -392,7 +500,14 @@ public class HomeController {
 		return "students";
 	}
 	
-	/** View student account */
+	/**
+	 * View student account
+	 * @param studentUsername
+	 * @param subjectId
+	 * @param model
+	 * @param principal
+	 * @return
+	 */
 	@RequestMapping("/student")
 	public String getStudent(@RequestParam("student") String studentUsername, @RequestParam("subjectId") long subjectId, Model model, Principal principal) {
 		
@@ -416,7 +531,15 @@ public class HomeController {
 		return "student";
 	}
 	
-	/** Assign grade to student by teacher */
+	/**
+	 * Assign grade to student by teacher
+	 * @param studentId
+	 * @param subjectId
+	 * @param selectedGrade
+	 * @param attendingClass
+	 * @param model
+	 * @return
+	 */
 	@RequestMapping("/assign-grade")
 	public String assignGrade(@RequestParam("studentId") long studentId, @RequestParam("subjectId") long subjectId, @RequestParam("grade") int selectedGrade, @RequestParam("attendingClass") String attendingClass, Model model) {
 		
@@ -457,7 +580,11 @@ public class HomeController {
 		return "student";
 	}
 	
-	/** View student's account by student */
+	/** View student's account by student
+	 * @param principal
+	 * @param model
+	 * @return
+	 */
 	@RequestMapping("/student-account")
 	public String studentAccount(Principal principal, Model model) {
 		String username = principal.getName();
@@ -473,6 +600,13 @@ public class HomeController {
 		return "student-account";
 	}
 	
+	/**
+	 * Sending the subject request
+	 * @param id
+	 * @param model
+	 * @param principal
+	 * @return
+	 */
 	@RequestMapping("/subject-request")
 	public String subjectRequest(@RequestParam("id") long id, Model model, Principal principal) {
 		
@@ -495,6 +629,15 @@ public class HomeController {
 		return "review-request";
 	}
 	
+	/**
+	 * Handling subject request by Administrator
+	 * @param requestReply
+	 * @param studentName
+	 * @param subjectId
+	 * @param requestId
+	 * @param session
+	 * @return
+	 */
 	@RequestMapping("/request-replied/{student}/{subjectId}/{requestId}")
 	public String requestReplied(@RequestParam("request") String requestReply, @PathVariable("student") String studentName, @PathVariable("subjectId") long subjectId, @PathVariable("requestId") long requestId, HttpSession session) {
 		
@@ -523,6 +666,22 @@ public class HomeController {
 		}
 		
 		return "redirect:/review-requests";
+	}
+	
+	/**
+	 * Load image from the table, and stream it out to the view
+	 * @param id
+	 * @param response
+	 */
+	@RequestMapping("/image/{id}")
+	public void loadImage(@PathVariable("id") long id, HttpServletResponse response) {
+		byte[] image = userDao.getImage(id);
+		try {
+			response.setContentType("image/jpg");
+			response.getOutputStream().write(image);
+		} catch (IOException e) {
+			logger.info(e);
+		}
 	}
 	
 }

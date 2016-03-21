@@ -7,6 +7,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
+import javax.persistence.Lob;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.validation.constraints.Pattern;
@@ -47,6 +48,9 @@ public class User implements Serializable {
 	@Size(min = 2, max = 20, message = "*last name must contain at least 2, and max 20 characters.")
 	@Pattern(regexp = "^[A-Z][a-z]{2,20}$", message = "*last name can only consist of letters (first letter must be upper case).")
 	private String lastName;
+	
+	@Lob
+	private byte[] profileImage;
 
 	private boolean enabled = true;
 	private String authority;
@@ -109,6 +113,14 @@ public class User implements Serializable {
 
 	public long getId() {
 		return id;
+	}
+	
+	public byte[] getProfileImage() {
+		return profileImage;
+	}
+
+	public void setProfileImage(byte[] profileImage) {
+		this.profileImage = profileImage;
 	}
 
 	@Override

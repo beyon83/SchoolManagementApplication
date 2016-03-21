@@ -66,6 +66,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 		.antMatchers("/resources/**").permitAll()
 		.antMatchers("/courses").permitAll()
 		.antMatchers("/school-members").permitAll()
+		.antMatchers("/image/**").permitAll()
 		.anyRequest().denyAll()
 		.and()
 		.formLogin().loginPage("/login").failureUrl("/login?error")

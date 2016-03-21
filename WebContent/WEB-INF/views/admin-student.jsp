@@ -92,15 +92,17 @@
 	<div class="container" style="width: 450px;">
 		<div class="wrapper">
 			<div class="row">
-				<div class="student-header">
-					<h4>STUDENT: <span style="color: #2277aa; margin-left: 20px;"><c:out value="${student.firstName} ${student.lastName}" /></span></h4>
+				<div class="user-avatar" style="float: left; margin-left: 15px;">
+					<img src="<c:url value='/image/${student.id}' />" style="height: 100px; border: 6px solid #f2f2f2;" />
 				</div>
-	  			<div class="student-row">
-	  				<label style="widht: 150px;" class="row-label">Student:</label><br />
-	  				<c:out value="${student.firstName} ${student.lastName} (${student.username})" />
+	  			<div class="student-row" style="float: left; padding: 0px; margin-left: 20px;">
+	  				<h4 style="widht: 300px; color: #2277aa;">
+	  					<c:out value="${student.firstName} ${student.lastName}" /><br />
+	  					<c:out value="(${student.username})" />
+	  				</h4>
 	  			</div>
-	  			<div style="border-bottom: 1px solid #f2f2f2; padding: 15px;"></div>
-	  			<div class="student-row">
+	  			<div style="border-bottom: 1px solid #f2f2f2; padding: 15px; clear: both;"></div>
+	  			<div class="student-row" style="clear: both;">
 	  				<label style="width: 150px !important;" class="row-label">Attending classes:</label><br />
 	  				<ul class="student-row-list">
 	  					<c:forEach items="${student.subjects}" var="subject">

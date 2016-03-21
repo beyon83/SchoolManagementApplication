@@ -70,8 +70,11 @@
 	</nav> <!-- End of navigation bar -->
 	
     <div class="container">
+    	<div class="user-avatar" style="float: left; padding-bottom: 10px;">
+			<img src="<c:url value='/image/${student.id}' />" style="height: 100px; border: 6px solid #f2f2f2;" />
+		</div>
     	<div class="student-header" style="margin-top: 10px;">
-			<h4>STUDENT: <span style="color: #2277aa;"><c:out value="${student.firstName} ${student.lastName} (${student.username})" /></span></h4>
+			<h4><span style="color: #2277aa; margin-left: 20px;"><c:out value="${student.firstName} ${student.lastName} (${student.username})" /></span></h4>
 		</div>
     	<table class="table table-bordered" id="grades-cell">
     		<thead>
